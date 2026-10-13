@@ -1,16 +1,7 @@
-import type { MouseEvent } from 'react'
-import { navigate } from '../app/router'
+import { goTo } from '../app/link'
 
 type PlaceholderDetailProps = {
   id: string
-}
-
-function go(e: MouseEvent<HTMLAnchorElement>, href: string): void {
-  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) {
-    return
-  }
-  e.preventDefault()
-  navigate(href)
 }
 
 /** Placeholder H1: H3 lo reemplazará por el PDP real. Sin fetching. */
@@ -22,7 +13,7 @@ export function PlaceholderDetail({ id }: PlaceholderDetailProps): JSX.Element {
       <p className="text-sm">
         <a
           href="/"
-          onClick={(e) => go(e, '/')}
+          onClick={(e) => goTo(e, '/')}
           className="font-medium text-neutral-900 underline hover:no-underline"
         >
           Volver al catálogo
