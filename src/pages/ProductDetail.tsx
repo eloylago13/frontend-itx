@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { goTo } from '../app/link'
 import { useCart } from '../app/store'
 import { addToCart, getProduct } from '../lib/apiClient'
+import { formatPrice } from '../lib/format'
 import type { ProductDetail as ProductDetailData } from '../lib/types'
 import { CACHE_TTL_MS } from '../lib/storage'
 import { useCachedResource } from '../lib/useCachedResource'
@@ -18,17 +19,6 @@ type ProductDetailProps = {
 type Status = 'loading' | 'error' | 'not-found' | 'ready'
 
 const NOT_FOUND_MESSAGE = 'Producto no encontrado'
-
-function formatPrice(price: string | undefined): string {
-  const trimmed = typeof price === 'string' ? price.trim() : ''
-  if (trimmed === '') {
-    return 'Precio no disponible'
-  }
-  if (/€|\$/.test(trimmed)) {
-    return trimmed
-  }
-  return `${trimmed} €`
-}
 
 export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element {
   const { setCount } = useCart()
@@ -111,7 +101,7 @@ export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element
           <a
             href="/"
             onClick={(e) => goTo(e, '/')}
-            className="font-medium text-neutral-900 underline hover:no-underline"
+            className="rounded-sm font-medium text-neutral-900 underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
           >
             Volver al catálogo
           </a>
@@ -145,7 +135,7 @@ export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element
           <a
             href="/"
             onClick={(e) => goTo(e, '/')}
-            className="font-medium text-neutral-900 underline hover:no-underline"
+            className="rounded-sm font-medium text-neutral-900 underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
           >
             Volver al catálogo
           </a>
@@ -161,7 +151,7 @@ export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element
           <a
             href="/"
             onClick={(e) => goTo(e, '/')}
-            className="font-medium text-neutral-900 underline hover:no-underline"
+            className="rounded-sm font-medium text-neutral-900 underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
           >
             Volver al catálogo
           </a>
@@ -189,7 +179,7 @@ export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element
           <a
             href="/"
             onClick={(e) => goTo(e, '/')}
-            className="font-medium text-neutral-900 underline hover:no-underline"
+            className="rounded-sm font-medium text-neutral-900 underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
           >
             Volver al catálogo
           </a>
@@ -204,7 +194,7 @@ export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element
         <a
           href="/"
           onClick={(e) => goTo(e, '/')}
-          className="font-medium text-neutral-900 underline hover:no-underline"
+          className="rounded-sm font-medium text-neutral-900 underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
         >
           Volver al catálogo
         </a>

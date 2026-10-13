@@ -16,7 +16,7 @@ export function Header({ crumbs }: { crumbs: Crumb[] }): JSX.Element {
           href="/"
           aria-label="ITX inicio"
           onClick={(e) => goTo(e, '/')}
-          className="text-lg font-bold tracking-tight text-neutral-900 hover:underline"
+          className="rounded-sm text-lg font-bold tracking-tight text-neutral-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
         >
           ITX
         </a>
@@ -34,6 +34,7 @@ export function Header({ crumbs }: { crumbs: Crumb[] }): JSX.Element {
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1
             const key = `${index}-${crumb.label}`
+            const href = crumb.href
             return (
               <li key={key} className="flex items-center gap-1">
                 {index > 0 && (
@@ -41,8 +42,12 @@ export function Header({ crumbs }: { crumbs: Crumb[] }): JSX.Element {
                     /
                   </span>
                 )}
-                {crumb.href !== undefined && !isLast ? (
-                  <a href={crumb.href} onClick={(e) => goTo(e, crumb.href as string)} className="hover:underline">
+                {href !== undefined && !isLast ? (
+                  <a
+                    href={href}
+                    onClick={(e) => goTo(e, href)}
+                    className="rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
+                  >
                     {crumb.label}
                   </a>
                 ) : (

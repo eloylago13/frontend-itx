@@ -55,7 +55,8 @@ describe('H2 PLP: ProductList', () => {
       'Buscar por marca o modelo…',
     )
 
-    const images = screen.getAllByRole('img')
+    // Las imágenes son decorativas (el enlace ya nombra marca+modelo).
+    const images = document.querySelectorAll('section img')
     expect(images).toHaveLength(2)
     for (const img of images) {
       expect(img).toHaveAttribute('loading', 'lazy')

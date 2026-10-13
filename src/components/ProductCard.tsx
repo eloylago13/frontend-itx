@@ -1,4 +1,5 @@
 import { goTo } from '../app/link'
+import { formatPrice } from '../lib/format'
 import type { ProductListItem } from '../lib/types'
 
 type ProductCardProps = {
@@ -9,21 +10,9 @@ function isHttpsImageUrl(value: string): boolean {
   return value.startsWith('https://')
 }
 
-function formatPrice(price: string): string {
-  const trimmed = price.trim()
-  if (trimmed === '') {
-    return 'Precio no disponible'
-  }
-  if (/€|\$/.test(trimmed)) {
-    return trimmed
-  }
-  return `${trimmed} €`
-}
-
 export function ProductCard({ product }: ProductCardProps): JSX.Element {
   const { id, brand, model, price, imgUrl } = product
-  const href = `/product/${id}`
-  const alt = `${brand} ${model}`
+  const href = `/product/${encodeURIComponent(id)}`
   const showImage = isHttpsImageUrl(imgUrl)
 
   return (
@@ -37,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps): JSX.Element {
         {showImage ? (
           <img
             src={imgUrl}
-            alt={alt}
+            alt=""
             loading="lazy"
             className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
           />
