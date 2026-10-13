@@ -1,0 +1,32 @@
+# ---> Auto: node / npm
+node_modules/
+dist/
+coverage/
+
+# ---> Env (no subir secretos, solo ejemplo)
+.env
+.env.local
+.env.*.local
+
+# ---> Prueba / enunciado (no se publica)
+*.pdf
+Prueba frontend ITX*
+*ITX*.pdf
+
+# ---> Tooling IA local (no se publica: agentes, skills, commands)
+.opencode/
+.claude/
+.opencode.json
+opencode.json
+opencode.jsonc
+agents/
+skills/
+commands/
+
+# ---> OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
