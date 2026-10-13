@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App.tsx'
 import { navigate, parseRoute } from './app/router.ts'
@@ -150,7 +150,9 @@ describe('H1 shell: App', () => {
     await screen.findByRole('heading', { level: 1, name: /demo uno/i })
 
     const breadcrumb = screen.getByRole('navigation', { name: /breadcrumb/i })
-    expect(breadcrumb).toHaveTextContent('Demo Uno')
+    await waitFor(() => {
+      expect(breadcrumb).toHaveTextContent('Demo Uno')
+    })
     expect(breadcrumb).not.toHaveTextContent('demo-1')
   })
 

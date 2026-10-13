@@ -32,6 +32,7 @@ function mockFetchHttpError(status: number): void {
 
 beforeEach(() => {
   window.history.pushState(null, '', '/')
+  window.localStorage.clear()
 })
 
 afterEach(() => {

@@ -10,10 +10,7 @@ Aplicación web (SPA) para explorar un catálogo de móviles: lista con búsqued
 - Cabecera con navegación, breadcrumbs y contador de cesta visible en todas las vistas (persistido en local).
 - Detalle con selectores de almacenamiento y color (primera opción preseleccionada).
 - Botón Añadir que envía la cesta al API (`POST /api/cart`) y actualiza el contador con su respuesta.
-
-## En curso
-
-- Caché local de 1 hora para lista y detalle (H5).
+- Caché local de 1 hora para lista y detalle (`itx:list:v1`, `itx:detail:{id}:v1`): si el dato tiene menos de 1 hora se reutiliza sin pedir al API; el 404 de detalle no se cachea.
 
 ## Requisitos
 

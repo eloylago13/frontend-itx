@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { getProducts } from '../lib/apiClient'
 import type { ProductListItem } from '../lib/types'
+import { CACHE_TTL_MS } from '../lib/storage'
+import { useCachedResource } from '../lib/useCachedResource'
 import { SearchBar } from '../components/SearchBar'
 import { ProductCard } from '../components/ProductCard'
-
-type Status = 'loading' | 'error' | 'ready'
 
 function normalize(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ')
@@ -22,46 +22,23 @@ function formatCount(count: number): string {
   return count === 1 ? '1 producto' : `${count} productos`
 }
 
+const EMPTY_PRODUCTS: ProductListItem[] = []
+
 export function ProductList(): JSX.Element {
-  const [products, setProducts] = useState<ProductListItem[]>([])
-  const [status, setStatus] = useState<Status>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
+  const {
+    data,
+    status,
+    error: errorMessage,
+    reload: retry,
+  } = useCachedResource<ProductListItem[]>('itx:list:v1', getProducts, { ttl: CACHE_TTL_MS })
+  const products = data ?? EMPTY_PRODUCTS
   const [query, setQuery] = useState('')
-  const [attempt, setAttempt] = useState(0)
-
-  const load = useCallback(async (signal: AbortSignal) => {
-    setStatus('loading')
-    setErrorMessage('')
-    try {
-      const items = await getProducts(signal)
-      setProducts(items)
-      setStatus('ready')
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        return
-      }
-      setErrorMessage(error instanceof Error ? error.message : 'No se pudieron cargar los productos.')
-      setStatus('error')
-    }
-  }, [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    void load(controller.signal)
-    return () => {
-      controller.abort()
-    }
-  }, [load, attempt])
 
   const normalizedQuery = normalize(query)
   const filtered = useMemo(
     () => products.filter((product) => matchesQuery(product, normalizedQuery)),
     [products, normalizedQuery],
   )
-
-  const retry = (): void => {
-    setAttempt((current) => current + 1)
-  }
 
   return (
     <section className="space-y-6" aria-labelledby="catalog-title">
