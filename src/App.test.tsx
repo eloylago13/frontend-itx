@@ -9,13 +9,47 @@ const SAMPLE = [
   { id: 'demo-1', brand: 'Demo', model: 'Uno', price: '100', imgUrl: 'https://example.com/demo-1.jpg' },
 ]
 
-function mockFetchOk(payload: unknown = SAMPLE): void {
+const SAMPLE_DETAIL = {
+  id: 'demo-1',
+  brand: 'Demo',
+  model: 'Uno',
+  price: '100',
+  imgUrl: 'https://example.com/demo-1.jpg',
+  cpu: 'Demo CPU',
+  ram: '2GB RAM',
+  os: 'Demo OS',
+  displaySize: '5 inches',
+  displayResolution: '720x1280',
+  battery: '2000 mAh',
+  primaryCamera: ['8 MP'],
+  secondaryCmera: ['2 MP'],
+  dimentions: '140 x 70 x 8 mm',
+  weight: '150 g',
+  internalMemory: ['16GB'],
+  colors: ['Black'],
+  options: {
+    colors: [{ code: 1000, name: 'Black' }],
+    storages: [{ code: 2000, name: '16GB' }],
+  },
+}
+
+function mockFetchOk(): void {
   vi.stubGlobal(
     'fetch',
-    vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => payload,
+    vi.fn().mockImplementation((url: unknown) => {
+      const target = typeof url === 'string' ? url : String(url)
+      if (target.includes('/api/product/demo-1')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => SAMPLE_DETAIL,
+        })
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => SAMPLE,
+      })
     }),
   )
 }
@@ -67,7 +101,8 @@ describe('H1 shell: App', () => {
 
     await user.click(await screen.findByRole('link', { name: /ver demo uno/i }))
 
-    expect(screen.getByText(/Producto demo-1 \(placeholder H1\)/i)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /demo uno/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /añadir \(disponible en h4\)/i })).toBeDisabled()
     expect(window.location.pathname).toBe('/product/demo-1')
   })
 
@@ -77,7 +112,7 @@ describe('H1 shell: App', () => {
       navigate('/product/demo-1')
     })
     render(<App />)
-    expect(screen.getByText(/Producto demo-1/i)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /demo uno/i })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: /Volver al catálogo/i }))
 
@@ -117,7 +152,7 @@ describe('H1 shell: App', () => {
     await user.click(screen.getByRole('link', { name: /ver demo uno/i }))
 
     expect(scrollSpy).toHaveBeenCalled()
-    const heading = screen.getByRole('heading', { level: 1 })
+    const heading = await screen.findByRole('heading', { level: 1, name: /demo uno/i })
     expect(document.activeElement).toBe(heading)
     scrollSpy.mockRestore()
   })
