@@ -1,18 +1,9 @@
-import type { MouseEvent } from 'react'
-import { navigate } from '../app/router'
+import { goTo } from '../app/link'
 import { useCart } from '../app/store'
 
 export type Crumb = {
   label: string
   href?: string
-}
-
-function handleInternalNav(e: MouseEvent<HTMLAnchorElement>, href: string): void {
-  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) {
-    return
-  }
-  e.preventDefault()
-  navigate(href)
 }
 
 export function Header({ crumbs }: { crumbs: Crumb[] }): JSX.Element {
@@ -24,7 +15,7 @@ export function Header({ crumbs }: { crumbs: Crumb[] }): JSX.Element {
         <a
           href="/"
           aria-label="ITX inicio"
-          onClick={(e) => handleInternalNav(e, '/')}
+          onClick={(e) => goTo(e, '/')}
           className="text-lg font-bold tracking-tight text-neutral-900 hover:underline"
         >
           ITX
@@ -51,11 +42,7 @@ export function Header({ crumbs }: { crumbs: Crumb[] }): JSX.Element {
                   </span>
                 )}
                 {crumb.href !== undefined && !isLast ? (
-                  <a
-                    href={crumb.href}
-                    onClick={(e) => handleInternalNav(e, crumb.href as string)}
-                    className="hover:underline"
-                  >
+                  <a href={crumb.href} onClick={(e) => goTo(e, crumb.href as string)} className="hover:underline">
                     {crumb.label}
                   </a>
                 ) : (

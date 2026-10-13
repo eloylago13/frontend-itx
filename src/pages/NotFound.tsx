@@ -1,13 +1,4 @@
-import type { MouseEvent } from 'react'
-import { navigate } from '../app/router'
-
-function go(e: MouseEvent<HTMLAnchorElement>, href: string): void {
-  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.altKey || e.ctrlKey || e.shiftKey) {
-    return
-  }
-  e.preventDefault()
-  navigate(href)
-}
+import { goTo } from '../app/link'
 
 export function NotFound(): JSX.Element {
   return (
@@ -17,7 +8,7 @@ export function NotFound(): JSX.Element {
       <p className="text-sm">
         <a
           href="/"
-          onClick={(e) => go(e, '/')}
+          onClick={(e) => goTo(e, '/')}
           className="font-medium text-neutral-900 underline hover:no-underline"
         >
           Volver al inicio

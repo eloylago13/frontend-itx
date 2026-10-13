@@ -1,11 +1,20 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { useRoute } from './app/router'
+import type { Route } from './app/router'
 import { CartProvider } from './app/store'
 import { Layout } from './components/Layout'
 import type { Crumb } from './components/Layout'
 import { NotFound } from './pages/NotFound'
 import { PlaceholderDetail } from './pages/PlaceholderDetail'
-import { PlaceholderList } from './pages/PlaceholderList'
+import { ProductList } from './pages/ProductList'
+
+function routeKey(route: Route): string {
+  if (route.name === 'detail') {
+    return `detail-${route.id}`
+  }
+  return route.name
+}
 
 function Shell(): JSX.Element {
   const route = useRoute()
@@ -16,7 +25,7 @@ function Shell(): JSX.Element {
   switch (route.name) {
     case 'list':
       crumbs = [{ label: 'Catálogo' }]
-      page = <PlaceholderList />
+      page = <ProductList />
       break
     case 'detail':
       crumbs = [{ label: 'Catálogo', href: '/' }, { label: route.id }]
@@ -27,6 +36,21 @@ function Shell(): JSX.Element {
       page = <NotFound />
       break
   }
+
+  const key = routeKey(route)
+
+  useEffect(() => {
+    try {
+      window.scrollTo(0, 0)
+    } catch {
+      // jsdom u otros entornos sin scroll: se ignora.
+    }
+    const heading = document.querySelector('main h1')
+    if (heading instanceof HTMLElement) {
+      heading.setAttribute('tabindex', '-1')
+      heading.focus({ preventScroll: true })
+    }
+  }, [key])
 
   return <Layout crumbs={crumbs}>{page}</Layout>
 }
