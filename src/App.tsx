@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRoute } from './app/router'
 import type { Route } from './app/router'
 import { CartProvider } from './app/store'
@@ -18,6 +18,13 @@ function routeKey(route: Route): string {
 
 function Shell(): JSX.Element {
   const route = useRoute()
+  const [detailLabel, setDetailLabel] = useState<string | null>(null)
+
+  const key = routeKey(route)
+
+  useEffect(() => {
+    setDetailLabel(null)
+  }, [key])
 
   let crumbs: Crumb[]
   let page: ReactNode
@@ -28,16 +35,14 @@ function Shell(): JSX.Element {
       page = <ProductList />
       break
     case 'detail':
-      crumbs = [{ label: 'Catálogo', href: '/' }, { label: route.id }]
-      page = <ProductDetail id={route.id} />
+      crumbs = [{ label: 'Catálogo', href: '/' }, { label: detailLabel ?? 'Detalle' }]
+      page = <ProductDetail id={route.id} onLoaded={setDetailLabel} />
       break
     case 'not-found':
       crumbs = [{ label: 'Catálogo', href: '/' }, { label: 'No encontrado' }]
       page = <NotFound />
       break
   }
-
-  const key = routeKey(route)
 
   useEffect(() => {
     try {

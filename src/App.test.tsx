@@ -102,7 +102,7 @@ describe('H1 shell: App', () => {
     await user.click(await screen.findByRole('link', { name: /ver demo uno/i }))
 
     expect(await screen.findByRole('heading', { level: 1, name: /demo uno/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /añadir \(disponible en h4\)/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Añadir$/i })).toBeEnabled()
     expect(window.location.pathname).toBe('/product/demo-1')
   })
 
@@ -140,6 +140,18 @@ describe('H1 shell: App', () => {
 
     expect(screen.getByText(/404/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Volver al inicio/i })).toBeInTheDocument()
+  })
+
+  it('el breadcrumb del detalle muestra el modelo, no el id', async () => {
+    act(() => {
+      navigate('/product/demo-1')
+    })
+    render(<App />)
+    await screen.findByRole('heading', { level: 1, name: /demo uno/i })
+
+    const breadcrumb = screen.getByRole('navigation', { name: /breadcrumb/i })
+    expect(breadcrumb).toHaveTextContent('Demo Uno')
+    expect(breadcrumb).not.toHaveTextContent('demo-1')
   })
 
   it('hace scroll-to-top y mueve el foco al h1 al cambiar de ruta', async () => {

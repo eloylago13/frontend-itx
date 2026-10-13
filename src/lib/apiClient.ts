@@ -4,7 +4,16 @@ export const DEFAULT_API_BASE_URL = 'https://itx-frontend-test.onrender.com'
 
 const PRODUCT_LIST_PATH = '/api/product'
 
-const PRODUCT_ID_PATTERN = /^[A-Za-z0-9-_]+$/
+const CART_PATH = '/api/cart'
+
+export const PRODUCT_ID_PATTERN = /^[A-Za-z0-9-_]+$/
+
+/** Entrada del POST de cesta (contrato `POST /api/cart`). */
+export type AddToCartInput = {
+  id: string
+  colorCode: number
+  storageCode: number
+}
 
 function isHttpUrl(value: string): boolean {
   return value.startsWith('http://') || value.startsWith('https://')
@@ -144,4 +153,63 @@ export async function getProduct(id: string, signal?: AbortSignal): Promise<Prod
   }
 
   return payload as ProductDetail
+}
+
+/**
+ * Añade un producto a la cesta (H4).
+ * Valida `id` (`PRODUCT_ID_PATTERN`) y que `colorCode`/`storageCode` sean
+ * enteros ≥ 0 antes de enviar el POST. Devuelve el `count` de la respuesta.
+ */
+export async function addToCart(input: AddToCartInput): Promise<number> {
+  if (!PRODUCT_ID_PATTERN.test(input.id)) {
+    throw new Error('Id de producto no válido')
+  }
+  if (!Number.isInteger(input.colorCode) || input.colorCode < 0) {
+    throw new Error('Código de color no válido: debe ser un entero mayor o igual que 0.')
+  }
+  if (!Number.isInteger(input.storageCode) || input.storageCode < 0) {
+    throw new Error('Código de almacenamiento no válido: debe ser un entero mayor o igual que 0.')
+  }
+
+  const baseUrl = getApiBaseUrl()
+  const url = `${baseUrl}${CART_PATH}`
+
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: input.id,
+        colorCode: input.colorCode,
+        storageCode: input.storageCode,
+      }),
+    })
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error
+    }
+    throw new Error(`No se pudo añadir el producto a la cesta: sin conexión con ${baseUrl}.`)
+  }
+
+  if (!response.ok) {
+    throw new Error(`No se pudo añadir el producto a la cesta (HTTP ${response.status} de ${url}).`)
+  }
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    throw new Error(`No se pudo añadir el producto a la cesta: respuesta no válida (HTTP ${response.status}).`)
+  }
+
+  const count =
+    typeof payload === 'object' && payload !== null && 'count' in payload
+      ? (payload as { count: unknown }).count
+      : undefined
+  if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
+    throw new Error(`No se pudo añadir el producto a la cesta: formato inesperado (HTTP ${response.status}).`)
+  }
+
+  return count
 }

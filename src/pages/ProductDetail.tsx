@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { goTo } from '../app/link'
-import { getProduct } from '../lib/apiClient'
+import { useCart } from '../app/store'
+import { addToCart, getProduct } from '../lib/apiClient'
 import type { ProductDetail as ProductDetailData } from '../lib/types'
 import { ProductImage } from '../components/ProductImage'
 import { ProductOptions } from '../components/ProductOptions'
@@ -9,6 +10,7 @@ import { ProductSpecs } from '../components/ProductSpecs'
 
 type ProductDetailProps = {
   id: string
+  onLoaded?: (label: string) => void
 }
 
 type Status = 'loading' | 'error' | 'not-found' | 'ready'
@@ -26,21 +28,27 @@ function formatPrice(price: string | undefined): string {
   return `${trimmed} €`
 }
 
-export function ProductDetail({ id }: ProductDetailProps): JSX.Element {
+export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element {
+  const { setCount } = useCart()
   const [detail, setDetail] = useState<ProductDetailData | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [attempt, setAttempt] = useState(0)
   const [storage, setStorage] = useState<number | undefined>(undefined)
   const [color, setColor] = useState<number | undefined>(undefined)
+  const [adding, setAdding] = useState(false)
+  const [cartFeedback, setCartFeedback] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
 
   const load = useCallback(
     async (signal: AbortSignal) => {
       setStatus('loading')
       setErrorMessage('')
+      setCartFeedback(null)
+      setAdding(false)
       try {
         const data = await getProduct(id, signal)
         setDetail(data)
+        onLoaded?.(`${data.brand} ${data.model}`)
         const storages = getStorageOptions(data)
         const colors = getColorOptions(data)
         setStorage(storages.length > 0 ? storages[0].code : undefined)
@@ -60,7 +68,7 @@ export function ProductDetail({ id }: ProductDetailProps): JSX.Element {
         setStatus('error')
       }
     },
-    [id],
+    [id, onLoaded],
   )
 
   useEffect(() => {
@@ -85,6 +93,27 @@ export function ProductDetail({ id }: ProductDetailProps): JSX.Element {
   const retry = (): void => {
     setAttempt((current) => current + 1)
   }
+
+  const handleAdd = async (): Promise<void> => {
+    if (detail === null || storage === undefined || color === undefined || adding) {
+      return
+    }
+    setAdding(true)
+    setCartFeedback(null)
+    try {
+      const count = await addToCart({ id: detail.id, colorCode: color, storageCode: storage })
+      setCount(count)
+      setCartFeedback({ kind: 'success', text: 'Añadido a la cesta' })
+    } catch (error) {
+      // Detalle técnico solo a consola: la UI muestra un mensaje genérico sin stack.
+      console.error(error)
+      setCartFeedback({ kind: 'error', text: 'No se pudo añadir a la cesta. Inténtalo de nuevo.' })
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const canAdd = detail !== null && storage !== undefined && color !== undefined && !adding
 
   if (status === 'loading') {
     return (
@@ -122,9 +151,7 @@ export function ProductDetail({ id }: ProductDetailProps): JSX.Element {
     return (
       <section className="space-y-3">
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Producto no encontrado</h1>
-        <p className="text-sm text-neutral-600">
-          No hemos encontrado el producto con id &ldquo;{id}&rdquo;.
-        </p>
+        <p className="text-sm text-neutral-600">No hemos encontrado ese producto en el catálogo.</p>
         <p className="text-sm">
           <a
             href="/"
@@ -219,11 +246,26 @@ export function ProductDetail({ id }: ProductDetailProps): JSX.Element {
 
           <button
             type="button"
-            disabled
-            className="w-full cursor-not-allowed rounded-full bg-neutral-200 px-5 py-2.5 text-sm font-semibold text-neutral-500"
+            onClick={() => void handleAdd()}
+            disabled={!canAdd}
+            className={
+              canAdd
+                ? 'w-full rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2'
+                : 'w-full cursor-not-allowed rounded-full bg-neutral-200 px-5 py-2.5 text-sm font-semibold text-neutral-500'
+            }
           >
-            Añadir (disponible en H4)
+            {adding ? 'Añadiendo…' : 'Añadir'}
           </button>
+          {cartFeedback !== null &&
+            (cartFeedback.kind === 'success' ? (
+              <p role="status" className="text-sm font-medium text-green-700">
+                {cartFeedback.text}
+              </p>
+            ) : (
+              <p role="alert" className="text-sm font-medium text-red-700">
+                {cartFeedback.text}
+              </p>
+            ))}
         </div>
       </div>
 

@@ -19,7 +19,7 @@ Toda la comunicación pasa por un `apiClient` central que:
 - Lee la base de `VITE_API_BASE_URL` con valor por defecto y lista de dominios permitidos.
 - Valida el `id` de producto (`/^[A-Za-z0-9-_]+$/`) antes de pedir el detalle y lo codifica con `encodeURIComponent`.
 - Los tipos respetan los nombres reales del API, incluidas sus erratas (`secondaryCmera`, `dimentions`).
-- (En curso, H4) En el POST de cesta solo se enviará `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto.
+- En el POST de cesta (`POST /api/cart`) solo se envían `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto; la respuesta (`{count}`) actualiza el contador de la cabecera.
 
 ## 5. Caché de 1 hora y persistencia (en curso, H5)
 
