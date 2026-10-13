@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { goTo } from '../app/link'
 import { useCart } from '../app/store'
 import { addToCart, getProduct } from '../lib/apiClient'
 import type { ProductDetail as ProductDetailData } from '../lib/types'
+import { CACHE_TTL_MS } from '../lib/storage'
+import { useCachedResource } from '../lib/useCachedResource'
 import { ProductImage } from '../components/ProductImage'
 import { ProductOptions } from '../components/ProductOptions'
 import { getColorOptions, getStorageOptions } from '../lib/productOptions'
@@ -30,54 +32,45 @@ function formatPrice(price: string | undefined): string {
 
 export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element {
   const { setCount } = useCart()
-  const [detail, setDetail] = useState<ProductDetailData | null>(null)
-  const [status, setStatus] = useState<Status>('loading')
-  const [errorMessage, setErrorMessage] = useState('')
-  const [attempt, setAttempt] = useState(0)
+  const {
+    data: detail,
+    status: cacheStatus,
+    error: cacheError,
+    reload: retry,
+  } = useCachedResource<ProductDetailData>(`itx:detail:${id}:v1`, (signal) => getProduct(id, signal), {
+    ttl: CACHE_TTL_MS,
+  })
+  const status: Status =
+    cacheStatus === 'loading'
+      ? 'loading'
+      : cacheStatus === 'ready'
+        ? 'ready'
+        : cacheError === NOT_FOUND_MESSAGE
+          ? 'not-found'
+          : 'error'
+  const errorMessage = cacheError
   const [storage, setStorage] = useState<number | undefined>(undefined)
   const [color, setColor] = useState<number | undefined>(undefined)
   const [adding, setAdding] = useState(false)
   const [cartFeedback, setCartFeedback] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
 
-  const load = useCallback(
-    async (signal: AbortSignal) => {
-      setStatus('loading')
-      setErrorMessage('')
-      setCartFeedback(null)
-      setAdding(false)
-      try {
-        const data = await getProduct(id, signal)
-        setDetail(data)
-        onLoaded?.(`${data.brand} ${data.model}`)
-        const storages = getStorageOptions(data)
-        const colors = getColorOptions(data)
-        setStorage(storages.length > 0 ? storages[0].code : undefined)
-        setColor(colors.length > 0 ? colors[0].code : undefined)
-        setStatus('ready')
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          return
-        }
-        const message = error instanceof Error ? error.message : 'No se pudo cargar el producto.'
-        if (message === NOT_FOUND_MESSAGE) {
-          setDetail(null)
-          setStatus('not-found')
-          return
-        }
-        setErrorMessage(message)
-        setStatus('error')
-      }
-    },
-    [id, onLoaded],
-  )
+  useEffect(() => {
+    setAdding(false)
+    setCartFeedback(null)
+    setStorage(undefined)
+    setColor(undefined)
+  }, [id])
 
   useEffect(() => {
-    const controller = new AbortController()
-    void load(controller.signal)
-    return () => {
-      controller.abort()
+    if (cacheStatus !== 'ready' || detail === null) {
+      return
     }
-  }, [load, attempt])
+    onLoaded?.(`${detail.brand} ${detail.model}`)
+    const storages = getStorageOptions(detail)
+    const colors = getColorOptions(detail)
+    setStorage(storages.length > 0 ? storages[0].code : undefined)
+    setColor(colors.length > 0 ? colors[0].code : undefined)
+  }, [cacheStatus, detail, onLoaded])
 
   useEffect(() => {
     if (status !== 'ready') {
@@ -89,10 +82,6 @@ export function ProductDetail({ id, onLoaded }: ProductDetailProps): JSX.Element
       heading.focus({ preventScroll: true })
     }
   }, [status])
-
-  const retry = (): void => {
-    setAttempt((current) => current + 1)
-  }
 
   const handleAdd = async (): Promise<void> => {
     if (detail === null || storage === undefined || color === undefined || adding) {
