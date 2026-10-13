@@ -7,8 +7,10 @@ Aplicación web (SPA) para explorar un catálogo de móviles: lista con búsqued
 - Listado en cuadrícula responsive (hasta 4 por fila) con imagen, marca, modelo y precio.
 - Búsqueda en tiempo real por marca o modelo.
 - Detalle en 2 columnas (imagen + información y acciones) con enlace para volver al listado.
-- Cabecera con navegación, breadcrumbs y contador de cesta visible en todas las vistas.
-- Caché local de 1 hora para lista y detalle, y contador de cesta persistido.
+- Cabecera con navegación, breadcrumbs y contador de cesta visible en todas las vistas (persistido en local).
+- Detalle con selectores de almacenamiento y color (primera opción preseleccionada).
+- Botón Añadir que envía la cesta al API (`POST /api/cart`) y actualiza el contador con su respuesta.
+- Caché local de 1 hora para lista y detalle (`itx:list:v1`, `itx:detail:{id}:v1`): si el dato tiene menos de 1 hora se reutiliza sin pedir al API; el 404 de detalle no se cachea.
 
 ## Requisitos
 
@@ -40,7 +42,7 @@ La URL del API se configura con `VITE_API_BASE_URL` (ver `.env.example`):
 VITE_API_BASE_URL=https://itx-frontend-test.onrender.com
 ```
 
-Endpoints usados: `GET /api/product`, `GET /api/product/:id`, `POST /api/cart`.
+Endpoints usados: `GET /api/product`, `GET /api/product/:id` y `POST /api/cart`.
 
 ## Ramas
 
