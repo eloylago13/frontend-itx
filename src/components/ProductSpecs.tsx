@@ -1,19 +1,9 @@
+import { formatPrice } from '../lib/format'
 import { formatCamera } from '../lib/types'
 import type { ProductDetail } from '../lib/types'
 
 type ProductSpecsProps = {
   detail: ProductDetail
-}
-
-function formatPrice(price: string | undefined): string {
-  const trimmed = typeof price === 'string' ? price.trim() : ''
-  if (trimmed === '') {
-    return 'Precio no disponible'
-  }
-  if (/€|\$/.test(trimmed)) {
-    return trimmed
-  }
-  return `${trimmed} €`
 }
 
 function isNonEmpty(value: string | undefined): value is string {

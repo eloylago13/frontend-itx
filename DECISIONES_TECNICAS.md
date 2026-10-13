@@ -18,6 +18,9 @@ Toda la comunicación pasa por un `apiClient` central que:
 
 - Lee la base de `VITE_API_BASE_URL` con valor por defecto y lista de dominios permitidos.
 - Valida el `id` de producto (`/^[A-Za-z0-9-_]+$/`) antes de pedir el detalle y lo codifica con `encodeURIComponent`.
+- Todas las peticiones pasan por `fetchWithTimeout` (15 s): sin respuesta → error con Reintentar en vez de loading eterno (el API gratuito puede colgarse al despertar).
+- La base solo admite `https://` (`http://` solo para localhost en desarrollo).
+- La navegación SPA solo acepta rutas internas (`/...`).
 - Los tipos respetan los nombres reales del API, incluidas sus erratas (`secondaryCmera`, `dimentions`).
 - En el POST de cesta (`POST /api/cart`) solo se envían `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto; la respuesta (`{count}`) actualiza el contador de la cabecera.
 

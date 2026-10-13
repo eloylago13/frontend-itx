@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
+import { PRODUCT_ID_PATTERN } from '../lib/apiClient'
 
 export type Route = { name: 'list' } | { name: 'detail'; id: string } | { name: 'not-found' }
-
-export const PRODUCT_ID_PATTERN = /^[A-Za-z0-9-_]+$/
 
 const PRODUCT_PREFIX = '/product/'
 
@@ -42,8 +41,14 @@ function getCurrentRoute(): Route {
   return parseRoute(window.location.pathname)
 }
 
-/** Navegación SPA sin dependencias: pushState + aviso popstate. */
+/**
+ * Navegación SPA sin dependencias: pushState + aviso popstate.
+ * Solo acepta rutas internas (`/...`); el resto se ignora.
+ */
 export function navigate(to: string): void {
+  if (!to.startsWith('/') || to.startsWith('//')) {
+    return
+  }
   window.history.pushState(null, '', to)
   window.dispatchEvent(new PopStateEvent('popstate'))
 }

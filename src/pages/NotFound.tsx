@@ -9,7 +9,7 @@ export function NotFound(): JSX.Element {
         <a
           href="/"
           onClick={(e) => goTo(e, '/')}
-          className="font-medium text-neutral-900 underline hover:no-underline"
+          className="rounded-sm font-medium text-neutral-900 underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2"
         >
           Volver al inicio
         </a>
