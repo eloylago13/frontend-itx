@@ -22,7 +22,7 @@ Toda la comunicación pasa por un `apiClient` central que:
 - La base solo admite `https://` (`http://` solo para localhost en desarrollo).
 - La navegación SPA solo acepta rutas internas (`/...`).
 - Los tipos respetan los nombres reales del API, incluidas sus erratas (`secondaryCmera`, `dimentions`).
-- En el POST de cesta (`POST /api/cart`) solo se envían `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto; la respuesta (`{count}`) actualiza el contador de la cabecera.
+- En el POST de cesta (`POST /api/cart`) solo se envían `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto; la respuesta (`{count}`) actualiza el contador de la cabecera. Nota: el API es un mock sin estado y devuelve `count: 1` en todos los POST (verificado), así que el badge muestra siempre ese valor; se implementa literal según el enunciado sin acumular en cliente.
 
 ## 5. Caché de 1 hora y persistencia (H5)
 
@@ -33,7 +33,7 @@ Toda la comunicación pasa por un `apiClient` central que:
 - Los datos del API se renderizan como texto, sin HTML inyectado.
 - Las URLs de imagen deben ser `https:`, con `alt` y carga diferida.
 - Ningún secreto va en el bundle: las variables `VITE_*` son públicas por diseño, así que solo contienen la URL del API.
-- `npm audit` forma parte de la verificación habitual.
+- `npm audit` forma parte de la verificación habitual. Quedan 13 vulnerabilidades solo en dependencias de desarrollo (`vite`/`vitest`/`tailwind`); corregirlas exige saltos mayores con breaking changes, así que se documentan como riesgo aceptado y no viajan al bundle de producción.
 
 ## 7. Calidad
 
