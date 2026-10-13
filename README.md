@@ -9,10 +9,10 @@ Aplicación web (SPA) para explorar un catálogo de móviles: lista con búsqued
 - Detalle en 2 columnas (imagen + información y acciones) con enlace para volver al listado.
 - Cabecera con navegación, breadcrumbs y contador de cesta visible en todas las vistas (persistido en local).
 - Detalle con selectores de almacenamiento y color (primera opción preseleccionada).
+- Botón Añadir que envía la cesta al API (`POST /api/cart`) y actualiza el contador con su respuesta.
 
 ## En curso
 
-- Envío de la cesta al API (`POST /api/cart`) y actualización del contador con su respuesta (H4).
 - Caché local de 1 hora para lista y detalle (H5).
 
 ## Requisitos
@@ -45,7 +45,7 @@ La URL del API se configura con `VITE_API_BASE_URL` (ver `.env.example`):
 VITE_API_BASE_URL=https://itx-frontend-test.onrender.com
 ```
 
-Endpoints usados: `GET /api/product`, `GET /api/product/:id` y (en curso, H4) `POST /api/cart`.
+Endpoints usados: `GET /api/product`, `GET /api/product/:id` y `POST /api/cart`.
 
 ## Ramas
 

@@ -22,6 +22,34 @@ export function ProductOptions({
   const storages = getStorageOptions(detail)
   const colors = getColorOptions(detail)
 
+  const handleStorageChange = (rawValue: string): void => {
+    if (rawValue.trim() === '') {
+      return
+    }
+    const code = Number(rawValue)
+    if (!Number.isInteger(code)) {
+      return
+    }
+    if (!storages.some((option) => option.code === code)) {
+      return
+    }
+    onStorageChange(code)
+  }
+
+  const handleColorChange = (rawValue: string): void => {
+    if (rawValue.trim() === '') {
+      return
+    }
+    const code = Number(rawValue)
+    if (!Number.isInteger(code)) {
+      return
+    }
+    if (!colors.some((option) => option.code === code)) {
+      return
+    }
+    onColorChange(code)
+  }
+
   if (storages.length === 0 && colors.length === 0) {
     return <p className="text-sm text-neutral-600">No hay opciones disponibles para este producto.</p>
   }
@@ -36,7 +64,7 @@ export function ProductOptions({
           <select
             id="storage-select"
             value={storage ?? ''}
-            onChange={(e) => onStorageChange(Number(e.target.value))}
+            onChange={(e) => handleStorageChange(e.target.value)}
             className={selectClassName}
           >
             {storages.map((option) => (
@@ -55,7 +83,7 @@ export function ProductOptions({
           <select
             id="color-select"
             value={color ?? ''}
-            onChange={(e) => onColorChange(Number(e.target.value))}
+            onChange={(e) => handleColorChange(e.target.value)}
             className={selectClassName}
           >
             {colors.map((option) => (
