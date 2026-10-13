@@ -6,7 +6,7 @@ import { CartProvider } from './app/store'
 import { Layout } from './components/Layout'
 import type { Crumb } from './components/Layout'
 import { NotFound } from './pages/NotFound'
-import { PlaceholderDetail } from './pages/PlaceholderDetail'
+import { ProductDetail } from './pages/ProductDetail'
 import { ProductList } from './pages/ProductList'
 
 function routeKey(route: Route): string {
@@ -29,7 +29,7 @@ function Shell(): JSX.Element {
       break
     case 'detail':
       crumbs = [{ label: 'Catálogo', href: '/' }, { label: route.id }]
-      page = <PlaceholderDetail id={route.id} />
+      page = <ProductDetail id={route.id} />
       break
     case 'not-found':
       crumbs = [{ label: 'Catálogo', href: '/' }, { label: 'No encontrado' }]

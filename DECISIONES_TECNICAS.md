@@ -17,12 +17,13 @@ Solo hay dos rutas (`/` y `/product/:id`), así que se implementa un enrutador m
 Toda la comunicación pasa por un `apiClient` central que:
 
 - Lee la base de `VITE_API_BASE_URL` con valor por defecto y lista de dominios permitidos.
-- Valida el `id` de producto (`/^[A-Za-z0-9-_]+$/`) antes de pedir el detalle.
-- En el POST de cesta solo envía `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto.
+- Valida el `id` de producto (`/^[A-Za-z0-9-_]+$/`) antes de pedir el detalle y lo codifica con `encodeURIComponent`.
+- Los tipos respetan los nombres reales del API, incluidas sus erratas (`secondaryCmera`, `dimentions`).
+- (En curso, H4) En el POST de cesta solo se enviará `id`, `colorCode` y `storageCode` elegidos de las opciones reales del producto.
 
-## 5. Caché de 1 hora y persistencia
+## 5. Caché de 1 hora y persistencia (en curso, H5)
 
-Un `safeStorage` guarda `{data, ts}` en `localStorage` con control de errores de parseo/cuota y fallback a memoria. El hook `useCachedResource(key, fetcher)` reutiliza el dato si tiene menos de 1 hora y revalida después. El mismo mecanismo persiste el contador de cesta que muestra la cabecera.
+Hoy el contador de cesta se persiste de forma simple (`itx:cart:v1` con control de errores). En H5 se generalizará con un `safeStorage` que guarda `{data, ts}` en `localStorage` (control de parseo/cuota, fallback a memoria) y un hook `useCachedResource(key, fetcher)` que reutiliza el dato si tiene menos de 1 hora y revalida después, para lista y detalle.
 
 ## 6. Seguridad
 
