@@ -143,4 +143,20 @@ describe('H2 PLP: ProductList', () => {
     await screen.findByRole('link', { name: /ver apple/i })
     expect(screen.getByText('2 productos')).toBeInTheDocument()
   })
+
+  it('sirve la lista desde la caché sin llamar al API', async () => {
+    window.localStorage.setItem(
+      'itx:list:v1',
+      JSON.stringify({ data: SAMPLE, ts: Date.now() }),
+    )
+    const fetchSpy = vi.fn(async () => {
+      throw new Error('no debería llamar al API con caché fresca')
+    })
+    vi.stubGlobal('fetch', fetchSpy)
+    render(<ProductList />)
+
+    await screen.findByRole('link', { name: /ver apple/i })
+    expect(screen.getByText('2 productos')).toBeInTheDocument()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
 })

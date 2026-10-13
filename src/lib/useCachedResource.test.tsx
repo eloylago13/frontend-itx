@@ -124,6 +124,25 @@ describe('useCachedResource', () => {
     expect(safeStorage.read<string>('itx:test:error')).toBeNull()
   })
 
+  it('el error de detalle no se cachea y el siguiente mount reintenta', async () => {
+    const fetcher = vi.fn(async (): Promise<string> => {
+      throw new Error('Producto no encontrado')
+    })
+    const { unmount } = render(<Harness cacheKey="itx:detail:missing:v1" fetcher={fetcher} />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('status')).toHaveTextContent('error')
+    })
+    expect(safeStorage.read<string>('itx:detail:missing:v1')).toBeNull()
+    unmount()
+
+    render(<Harness cacheKey="itx:detail:missing:v1" fetcher={fetcher} />)
+    await waitFor(() => {
+      expect(screen.getByTestId('status')).toHaveTextContent('error')
+    })
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
   it('respeta el ttl personalizado', async () => {
     safeStorage.write('itx:test:custom-ttl', 'old')
     const raw = window.localStorage.getItem('itx:test:custom-ttl')
